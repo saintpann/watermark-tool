@@ -4,187 +4,237 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>iOS Watermark Tool</title>
+    <title>Image Watermark Tool</title>
     <style>
-        /* iOS-optimized styles */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: Arial, sans-serif;
             background-color: #f0f0f0;
             margin: 0;
-            padding: 10px;
-            -webkit-text-size-adjust: 100%;
-            touch-action: manipulation;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
         }
         .container {
             background-color: white;
             border-radius: 10px;
-            padding: 15px;
+            padding: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            max-width: 100%;
-            box-sizing: border-box;
         }
-        
-        /* iOS-friendly touch targets */
-        button, .radio-option, input[type="range"] {
-            min-height: 44px; /* Apple's recommended minimum */
+        h1 {
+            color: #333;
+            text-align: center;
         }
-        #colorBtn {
-            min-width: 44px;
-            padding: 0 15px;
+        button {
+            background-color: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
         }
-        
-        /* Enhanced color display */
-        .color-display {
-            width: 44px;
-            height: 44px;
-            border-radius: 8px;
-            border: 2px solid #ddd;
+        button:hover {
+            opacity: 0.9;
         }
-        
-        /* Improved slider appearance */
-        input[type="range"] {
-            -webkit-appearance: none;
-            height: 8px;
-            background: #ddd;
-            border-radius: 4px;
-            margin: 15px 0;
+        #exportBtn {
+            background-color: #34C759;
         }
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: #007AFF;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        /* Preview area */
         #previewContainer {
             border: 2px solid #ddd;
-            min-height: 200px;
+            min-height: 300px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 15px 0;
+            margin: 20px 0;
             background-color: white;
             position: relative;
-            border-radius: 10px;
-            aspect-ratio: 4/3;
         }
-        
-        /* Loading indicator */
-        #loadingOverlay {
+        #previewImage {
+            max-width: 100%;
+            max-height: 300px;
+        }
+        .nav-arrow {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255,255,255,0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            border-radius: 8px;
-        }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #007AFF;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
             border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            display: none;
+        }
+        #prevBtn {
+            left: 10px;
+        }
+        #nextBtn {
+            right: 10px;
+        }
+        .option-group {
+            display: flex;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .option {
+            flex: 1;
+            min-width: 150px;
+            margin: 5px;
+        }
+        .radio-group {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .radio-option {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background-color: #007AFF;
+            color: white;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .radio-option.selected {
+            background-color: white;
+            color: #007AFF;
+            border: 1px solid #007AFF;
+        }
+        .color-display {
+            display: inline-block;
             width: 30px;
             height: 30px;
-            animation: spin 1s linear infinite;
-            margin-top: 10px;
+            background-color: black;
+            vertical-align: middle;
+            margin: 0 10px;
+            border: 1px solid #999;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        input[type="range"] {
+            width: 100%;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .slider-container label {
+            min-width: 80px;
+        }
+        .slider-value {
+            min-width: 30px;
+            text-align: right;
+            margin-left: 10px;
+        }
+        .shadow-controls {
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .logo-opacity-strong {
+            background-color: #f0f8ff;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #loadingMessage {
+            color: #666;
+            font-style: italic;
+        }
+        select {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: white;
+            margin-left: 10px;
+        }
+        .option-group select {
+            margin-left: 0;
+            width: 100%;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Watermark Tool</h1>
+        <h1>Image Watermark Tool</h1>
+        
+        <button id="chooseImagesBtn">Choose Images</button>
+        <div id="imagesInfo">No images selected</div>
         
         <div id="previewContainer">
-            <div id="loadingOverlay">
-                <div id="loadingMessage">Processing...</div>
-                <div class="loader"></div>
-            </div>
             <button id="prevBtn" class="nav-arrow">←</button>
-            <div id="previewText">Select images to begin</div>
+            <div id="previewText">Select images to see preview</div>
+            <div id="loadingMessage" style="display: none;"></div>
             <img id="previewImage" style="display: none;">
             <button id="nextBtn" class="nav-arrow">→</button>
         </div>
         
-        <div id="controls-section">
-            <button id="chooseImagesBtn">Choose Images</button>
-            <div id="imagesInfo">No images selected</div>
-            
-            <div class="radio-group">
-                <div class="radio-option selected" data-value="black">Black</div>
-                <div class="radio-option" data-value="gold">Gold</div>
-                <div class="radio-option" data-value="white">White</div>
-            </div>
-            
-            <div class="logo-opacity-strong">
-                <div class="slider-container">
-                    <label for="opacitySlider">Logo Opacity:</label>
-                    <input type="range" id="opacitySlider" min="0" max="100" value="80">
-                    <span id="opacityValue" class="slider-value">80</span><span>%</span>
-                </div>
-                
-                <div class="slider-container">
-                    <label for="coverageSlider">Logo Size:</label>
-                    <input type="range" id="coverageSlider" min="5" max="100" value="25">
-                    <span id="coverageValue" class="slider-value">25</span><span>%</span>
-                </div>
-                
-                <div class="option-group">
-                    <div class="option">
-                        <label>Position:</label>
-                        <select id="positionSelect">
-                            <option value="right">Right</option>
-                            <option value="left">Left</option>
-                            <option value="center">Center</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="shadow-controls">
-                <div class="option-group">
-                    <div class="option">
-                        <label>Top Shadow</label>
-                        <input type="checkbox" id="shadowTop">
-                    </div>
-                    <div class="option">
-                        <label>Bottom Shadow</label>
-                        <input type="checkbox" id="shadowBottom" checked>
-                    </div>
-                </div>
-                
-                <div class="slider-container">
-                    <label for="shadowOpacitySlider">Shadow Opacity:</label>
-                    <input type="range" id="shadowOpacitySlider" min="0" max="100" value="50">
-                    <span id="shadowOpacityValue" class="slider-value">50</span><span>%</span>
-                </div>
-                
-                <div class="slider-container">
-                    <label for="shadowStrengthSlider">Shadow Strength:</label>
-                    <input type="range" id="shadowStrengthSlider" min="1" max="100" value="25">
-                    <span id="shadowStrengthValue" class="slider-value">25</span><span>%</span>
-                </div>
-                
-                <div class="option-group">
-                    <label>Shadow Color:</label>
-                    <div id="colorDisplay" class="color-display"></div>
-                    <button id="colorBtn">Choose</button>
-                </div>
-            </div>
-            
-            <button id="exportBtn">Export All</button>
+        <div class="radio-group">
+            <div class="radio-option selected" data-value="black">Black Logo</div>
+            <div class="radio-option" data-value="gold">Gold Logo</div>
+            <div class="radio-option" data-value="white">White Logo</div>
         </div>
+        
+        <div class="logo-opacity-strong">
+            <div class="slider-container">
+                <label for="opacitySlider"><strong>Logo Opacity:</strong></label>
+                <input type="range" id="opacitySlider" min="0" max="100" value="80">
+                <span id="opacityValue" class="slider-value">80</span><span>%</span>
+            </div>
+            
+            <div class="slider-container">
+                <label for="coverageSlider"><strong>Logo Size:</strong></label>
+                <input type="range" id="coverageSlider" min="5" max="100" value="25">
+                <span id="coverageValue" class="slider-value">25</span><span>%</span>
+            </div>
+            
+            <div class="option-group">
+                <div class="option">
+                    <label>Position:</label>
+                    <select id="positionSelect">
+                        <option value="right">Right</option>
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="shadow-controls">
+            <div class="option-group">
+                <div class="option">
+                    <label>Top Shadow</label>
+                    <input type="checkbox" id="shadowTop">
+                </div>
+                <div class="option">
+                    <label>Bottom Shadow</label>
+                    <input type="checkbox" id="shadowBottom" checked>
+                </div>
+            </div>
+            
+            <div class="slider-container">
+                <label for="shadowOpacitySlider">Shadow Opacity:</label>
+                <input type="range" id="shadowOpacitySlider" min="0" max="100" value="50">
+                <span id="shadowOpacityValue" class="slider-value">50</span><span>%</span>
+            </div>
+            
+            <div class="slider-container">
+                <label for="shadowStrengthSlider">Shadow Strength:</label>
+                <input type="range" id="shadowStrengthSlider" min="1" max="100" value="25">
+                <span id="shadowStrengthValue" class="slider-value">25</span><span>%</span>
+            </div>
+            
+            <div class="option-group">
+                <label>Shadow Color:</label>
+                <div id="colorDisplay" class="color-display"></div>
+                <button id="colorBtn">Choose Color</button>
+            </div>
+        </div>
+        
+        <button id="exportBtn">Export All</button>
         
         <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
     </div>
@@ -216,7 +266,6 @@
         const imagesInfo = document.getElementById('imagesInfo');
         const previewContainer = document.getElementById('previewContainer');
         const previewText = document.getElementById('previewText');
-        const loadingOverlay = document.getElementById('loadingOverlay');
         const loadingMessage = document.getElementById('loadingMessage');
         const previewImage = document.getElementById('previewImage');
         const prevBtn = document.getElementById('prevBtn');
@@ -238,7 +287,7 @@
         const colorBtn = document.getElementById('colorBtn');
         const exportBtn = document.getElementById('exportBtn');
 
-        // Image loading with iOS error handling
+        // Image loading with iOS orientation fix
         function loadImage(url) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
@@ -246,52 +295,11 @@
                 
                 const timeout = setTimeout(() => {
                     reject(new Error('Image load timed out'));
-                }, 15000); // Longer timeout for mobile
+                }, 15000);
                 
                 img.onload = () => {
                     clearTimeout(timeout);
-                    // Fix iOS image orientation
-                    if (typeof EXIF !== 'undefined' && url instanceof File) {
-                        EXIF.getData(img, function() {
-                            const orientation = EXIF.getTag(this, 'Orientation');
-                            if (orientation && orientation !== 1) {
-                                const canvas = document.createElement('canvas');
-                                const ctx = canvas.getContext('2d');
-                                canvas.width = img.width;
-                                canvas.height = img.height;
-                                
-                                // Apply orientation correction
-                                switch(orientation) {
-                                    case 3:
-                                        ctx.rotate(Math.PI);
-                                        ctx.drawImage(img, -img.width, -img.height);
-                                        break;
-                                    case 6:
-                                        canvas.width = img.height;
-                                        canvas.height = img.width;
-                                        ctx.rotate(Math.PI/2);
-                                        ctx.drawImage(img, 0, -img.height);
-                                        break;
-                                    case 8:
-                                        canvas.width = img.height;
-                                        canvas.height = img.width;
-                                        ctx.rotate(3*Math.PI/2);
-                                        ctx.drawImage(img, -img.width, 0);
-                                        break;
-                                    default:
-                                        ctx.drawImage(img, 0, 0);
-                                }
-                                
-                                const correctedImg = new Image();
-                                correctedImg.src = canvas.toDataURL('image/jpeg');
-                                correctedImg.onload = () => resolve(correctedImg);
-                                return;
-                            }
-                            resolve(img);
-                        });
-                    } else {
-                        resolve(img);
-                    }
+                    resolve(img);
                 };
                 
                 img.onerror = () => {
@@ -309,25 +317,16 @@
             });
         }
 
-        // Load logos with retry logic
+        // Load logo images
         async function loadLogoImages() {
-            showLoading("Loading logos...");
+            loadingMessage.style.display = 'block';
+            loadingMessage.textContent = "Loading logos...";
+            
             try {
-                const loadWithRetry = async (url, retries = 3) => {
-                    for (let i = 0; i < retries; i++) {
-                        try {
-                            return await loadImage(url);
-                        } catch (err) {
-                            if (i === retries - 1) throw err;
-                            await new Promise(resolve => setTimeout(resolve, 1000));
-                        }
-                    }
-                };
-                
                 const [blackLogo, goldLogo, whiteLogo] = await Promise.all([
-                    loadWithRetry(logoUrls.black),
-                    loadWithRetry(logoUrls.gold),
-                    loadWithRetry(logoUrls.white)
+                    loadImage(logoUrls.black),
+                    loadImage(logoUrls.gold),
+                    loadImage(logoUrls.white)
                 ]);
                 
                 logoImages = {
@@ -335,10 +334,11 @@
                     gold: goldLogo,
                     white: whiteLogo
                 };
-                hideLoading();
+                
+                loadingMessage.style.display = 'none';
             } catch (error) {
                 console.error("Error loading logos:", error);
-                showLoading(`Error: ${error.message}`);
+                loadingMessage.textContent = `Error loading logos: ${error.message}`;
                 createFallbackLogos();
             }
         }
@@ -364,7 +364,8 @@
                 gold: createLogo('gold'),
                 white: createLogo('white')
             };
-            hideLoading();
+            
+            loadingMessage.style.display = 'none';
         }
 
         // iOS-optimized color picker
@@ -373,7 +374,6 @@
             colorPicker.type = 'color';
             colorPicker.value = rgbToHex(shadowColor.r, shadowColor.g, shadowColor.b);
             
-            // iOS-friendly events
             colorPicker.addEventListener('change', () => {
                 const hex = colorPicker.value;
                 const rgb = hexToRgb(hex);
@@ -382,40 +382,31 @@
                 updatePreview();
             });
             
-            // Required for iOS to show picker
+            // iOS requires this to be triggered by user gesture
             colorPicker.click();
         }
 
-        // iOS download helper
-        function downloadImageIOS(src, filename) {
-            // Create temporary link
-            const link = document.createElement('a');
-            link.href = src;
-            link.download = filename;
-            
-            // iOS workaround
-            if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
-                const reader = new FileReader();
-                fetch(src)
-                    .then(res => res.blob())
-                    .then(blob => {
-                        reader.onload = () => {
-                            const newTab = window.open();
-                            newTab.document.write(
-                                `<img src="${reader.result}" style="max-width: 100%;"/>`
-                            );
-                        };
-                        reader.readAsDataURL(blob);
-                    });
-            } else {
-                // Standard download for other devices
+        // iOS-compatible download
+        function downloadImage(imageSrc, filename) {
+            if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                // iOS-specific handling
+                const link = document.createElement('a');
+                link.href = imageSrc;
+                link.target = '_blank';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
+                alert("Tap and hold the image, then select 'Save Image'");
+            } else {
+                // Standard download for other devices
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = imageSrc;
+                link.click();
             }
         }
 
-        // Watermark application with independent opacity
+        // Watermark application
         async function applyWatermark(image) {
             return new Promise((resolve) => {
                 try {
@@ -424,10 +415,10 @@
                     canvas.height = image.height;
                     const ctx = canvas.getContext('2d');
                     
-                    // 1. Draw original image
+                    // Draw original image
                     ctx.drawImage(image, 0, 0);
                     
-                    // 2. Process shadows separately
+                    // Process shadows
                     if (shadowTop || shadowBottom) {
                         const shadowCanvas = document.createElement('canvas');
                         shadowCanvas.width = canvas.width;
@@ -437,13 +428,12 @@
                         if (shadowTop) applyTopShadow(shadowCtx);
                         if (shadowBottom) applyBottomShadow(shadowCtx);
                         
-                        // Apply shadows with shadowOpacity only
                         ctx.globalAlpha = shadowOpacity / 100;
                         ctx.drawImage(shadowCanvas, 0, 0);
                         ctx.globalAlpha = 1.0;
                     }
                     
-                    // 3. Process logo with its own opacity
+                    // Add logo
                     addLogo(ctx, image);
                     
                     const result = new Image();
@@ -483,9 +473,8 @@
             const logo = logoImages[logoType];
             if (!logo) return;
             
-            // Mobile-optimized sizing
             const isMobile = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-            const sizeMultiplier = isMobile ? 0.7 : 0.5;
+            const sizeMultiplier = isMobile ? 0.6 : 0.5;
             const minDimension = Math.min(image.width, image.height);
             const logoSize = Math.floor(minDimension * (coverage / 100) * sizeMultiplier);
             
@@ -497,31 +486,14 @@
             logoY = image.height - height - (isMobile ? 15 : 20);
             
             switch(logoPosition) {
-                case "left": 
-                    logoX = isMobile ? 10 : 20;
-                    break;
-                case "center": 
-                    logoX = (image.width - width) / 2;
-                    break;
-                case "right": 
-                default:
-                    logoX = image.width - width - (isMobile ? 10 : 20);
+                case "left": logoX = isMobile ? 10 : 20; break;
+                case "center": logoX = (image.width - width) / 2; break;
+                case "right": default: logoX = image.width - width - (isMobile ? 10 : 20);
             }
             
-            // Apply logo opacity independently
             ctx.globalAlpha = logoOpacity / 100;
             ctx.drawImage(logo, logoX, logoY, width, height);
             ctx.globalAlpha = 1.0;
-        }
-
-        // Loading states
-        function showLoading(message) {
-            loadingMessage.textContent = message;
-            loadingOverlay.style.display = 'flex';
-        }
-
-        function hideLoading() {
-            loadingOverlay.style.display = 'none';
         }
 
         // Initialize
@@ -639,34 +611,37 @@
             if (selectedImages.length === 0) {
                 previewText.style.display = 'block';
                 previewImage.style.display = 'none';
-                hideLoading();
+                loadingMessage.style.display = 'none';
                 previewText.textContent = "Select images to see preview";
                 return;
             }
             
             try {
-                showLoading("Processing image...");
-                const file = selectedImages[currentImageIndex];
+                loadingMessage.style.display = 'block';
+                loadingMessage.textContent = "Processing image...";
+                previewText.style.display = 'none';
+                previewImage.style.display = 'none';
                 
+                const file = selectedImages[currentImageIndex];
                 const image = await loadImage(file);
+                
                 if (!logoImages[logoType]) throw new Error(`Logo type '${logoType}' not available`);
                 
                 const watermarked = await applyWatermark(image);
                 
-                previewText.style.display = 'none';
-                previewImage.style.display = 'block';
                 previewImage.src = watermarked.src;
-                hideLoading();
+                previewImage.style.display = 'block';
+                loadingMessage.style.display = 'none';
             } catch (error) {
                 console.error("Preview error:", error);
-                hideLoading();
+                loadingMessage.style.display = 'none';
                 previewText.style.display = 'block';
                 previewImage.style.display = 'none';
                 previewText.textContent = `Error: ${error.message}`;
             }
         }
 
-        // Export with iOS handling
+        // Export
         async function exportAll() {
             if (selectedImages.length === 0) {
                 alert("Please select images first.");
@@ -686,23 +661,7 @@
                         const watermarked = await applyWatermark(image);
                         
                         const filename = file.name.replace(/(\.[\w\d_-]+)$/i, '_watermarked$1');
-                        
-                        // iOS-specific handling
-                        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-                            const link = document.createElement('a');
-                            link.href = watermarked.src;
-                            link.download = filename;
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                            
-                            // Additional iOS save prompt
-                            if (window.webkit && window.webkit.messageHandlers) {
-                                alert("Tap and hold the image, then select 'Save Image'");
-                            }
-                        } else {
-                            downloadImageIOS(watermarked.src, filename);
-                        }
+                        downloadImage(watermarked.src, filename);
                         
                         await new Promise(resolve => setTimeout(resolve, 300));
                     } catch (error) {
