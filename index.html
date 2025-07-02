@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watermark Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        button {
+            background-color: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            opacity: 0.9;
+        }
+        #exportBtn {
+            background-color: #34C759;
+        }
+        #previewContainer {
+            border: 2px solid #ddd;
+            min-height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            background-color: white;
+            position: relative;
+        }
+        #previewImage {
+            max-width: 100%;
+            max-height: 300px;
+        }
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            display: none;
+        }
+        #prevBtn {
+            left: 10px;
+        }
+        #nextBtn {
+            right: 10px;
+        }
+        .option-group {
+            display: flex;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .option {
+            flex: 1;
+            min-width: 150px;
+            margin: 5px;
+        }
+        .radio-group {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .radio-option {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background-color: #007AFF;
+            color: white;
+            margin: 0 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .radio-option.selected {
+            background-color: white;
+            color: #007AFF;
+            border: 1px solid #007AFF;
+        }
+        .color-display {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background-color: black;
+            vertical-align: middle;
+            margin: 0 10px;
+            border: 1px solid #999;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .slider-container label {
+            min-width: 80px;
+        }
+        .slider-value {
+            min-width: 30px;
+            text-align: right;
+            margin-left: 10px;
+        }
+        .shadow-controls {
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .logo-opacity-strong {
+            background-color: #f0f8ff;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        #loadingMessage {
+            color: #666;
+            font-style: italic;
+        }
+        select {
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background-color: white;
+            margin-left: 10px;
+        }
+        .option-group select {
+            margin-left: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Watermark Tool</h1>
+        
+        <button id="chooseImagesBtn">Choose Images</button>
+        <div id="imagesInfo">No images selected</div>
+        
+        <div id="previewContainer">
+            <button id="prevBtn" class="nav-arrow">←</button>
+            <div id="previewText">Select images to see preview</div>
+            <div id="loadingMessage" style="display: none;"></div>
+            <img id="previewImage" style="display: none;">
+            <button id="nextBtn" class="nav-arrow">→</button>
+        </div>
+        
+        <div class="radio-group">
+            <div class="radio-option selected" data-value="black">Black Logo</div>
+            <div class="radio-option" data-value="gold">Gold Logo</div>
+            <div class="radio-option" data-value="white">White Logo</div>
+        </div>
+        
+        <div class="logo-opacity-strong">
+            <div class="slider-container">
+                <label for="opacitySlider"><strong>Logo Opacity:</strong></label>
+                <input type="range" id="opacitySlider" min="0" max="100" value="80">
+                <span id="opacityValue" class="slider-value">80</span><span>%</span>
+            </div>
+            
+            <div class="slider-container">
+                <label for="coverageSlider"><strong>Logo Size:</strong></label>
+                <input type="range" id="coverageSlider" min="5" max="100" value="25">
+                <span id="coverageValue" class="slider-value">25</span><span>%</span>
+            </div>
+            
+            <div class="option-group">
+                <div class="option">
+                    <label>Position:</label>
+                    <select id="positionSelect">
+                        <option value="right">Right</option>
+                        <option value="left">Left</option>
+                        <option value="center">Center</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <div class="shadow-controls">
+            <div class="option-group">
+                <div class="option">
+                    <label>Top Shadow</label>
+                    <input type="checkbox" id="shadowTop">
+                </div>
+                <div class="option">
+                    <label>Bottom Shadow</label>
+                    <input type="checkbox" id="shadowBottom" checked>
+                </div>
+            </div>
+            
+            <div class="slider-container">
+                <label for="shadowOpacitySlider">Shadow Opacity:</label>
+                <input type="range" id="shadowOpacitySlider" min="0" max="100" value="50">
+                <span id="shadowOpacityValue" class="slider-value">50</span><span>%</span>
+            </div>
+            
+            <div class="slider-container">
+                <label for="shadowStrengthSlider">Shadow Strength:</label>
+                <input type="range" id="shadowStrengthSlider" min="1" max="100" value="25">
+                <span id="shadowStrengthValue" class="slider-value">25</span><span>%</span>
+            </div>
+            
+            <div class="option-group">
+                <label>Shadow Color:</label>
+                <div id="colorDisplay" class="color-display"></div>
+                <button id="colorBtn">Choose Color</button>
+            </div>
+        </div>
+        
+        <button id="exportBtn">Export All</button>
+        
+        <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+    </div>
+
+    <script>
+        // Configuration
+        const logoUrls = {
+            black: "https://raw.githubusercontent.com/saintpann/watermark-logos/e83b24804159479cfd7bf63622cf38801754b33e/black.png",
+            gold: "https://raw.githubusercontent.com/saintpann/watermark-logos/e83b24804159479cfd7bf63622cf38801754b33e/gold.png",
+            white: "https://raw.githubusercontent.com/saintpann/watermark-logos/e83b24804159479cfd7bf63622cf38801754b33e/white.png"
+        };
+
+        // State
+        let selectedImages = [];
+        let currentImageIndex = 0;
+        let logoType = "black";
+        let shadowTop = false;
+        let shadowBottom = true;
+        let logoOpacity = 80;
+        let coverage = 25;
+        let shadowOpacity = 50;
+        let shadowStrength = 25;
+        let shadowColor = { r: 0, g: 0, b: 0 };
+        let logoImages = {};
+        let logoPosition = "right";
+
+        // DOM Elements
+        const chooseImagesBtn = document.getElementById('chooseImagesBtn');
+        const imagesInfo = document.getElementById('imagesInfo');
+        const previewContainer = document.getElementById('previewContainer');
+        const previewText = document.getElementById('previewText');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const previewImage = document.getElementById('previewImage');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const fileInput = document.getElementById('fileInput');
+        const radioOptions = document.querySelectorAll('.radio-option');
+        const shadowTopCheckbox = document.getElementById('shadowTop');
+        const shadowBottomCheckbox = document.getElementById('shadowBottom');
+        const opacitySlider = document.getElementById('opacitySlider');
+        const opacityValue = document.getElementById('opacityValue');
+        const coverageSlider = document.getElementById('coverageSlider');
+        const coverageValue = document.getElementById('coverageValue');
+        const positionSelect = document.getElementById('positionSelect');
+        const shadowOpacitySlider = document.getElementById('shadowOpacitySlider');
+        const shadowOpacityValue = document.getElementById('shadowOpacityValue');
+        const shadowStrengthSlider = document.getElementById('shadowStrengthSlider');
+        const shadowStrengthValue = document.getElementById('shadowStrengthValue');
+        const colorDisplay = document.getElementById('colorDisplay');
+        const colorBtn = document.getElementById('colorBtn');
+        const exportBtn = document.getElementById('exportBtn');
+
+        // Image loading
+        function loadImage(url) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                img.crossOrigin = "Anonymous";
+                const timeout = setTimeout(() => {
+                    img.onload = img.onerror = null;
+                    reject(new Error(`Image load timed out: ${url.split('?')[0]}`));
+                }, 10000);
+                img.onload = () => {
+                    clearTimeout(timeout);
+                    resolve(img);
+                };
+                img.onerror = (err) => {
+                    clearTimeout(timeout);
+                    reject(new Error(`Failed to load image: ${url.split('?')[0]}`));
+                };
+                img.src = url;
+            });
+        }
+
+        // Load logos
+        async function loadLogoImages() {
+            loadingMessage.style.display = 'block';
+            loadingMessage.textContent = "Loading logos...";
+            try {
+                const [blackLogo, goldLogo, whiteLogo] = await Promise.all([
+                    loadImage(logoUrls.black),
+                    loadImage(logoUrls.gold),
+                    loadImage(logoUrls.white)
+                ]);
+                logoImages = { black: blackLogo, gold: goldLogo, white: whiteLogo };
+                loadingMessage.style.display = 'none';
+            } catch (error) {
+                console.error("Error loading logos:", error);
+                loadingMessage.textContent = `Error loading logos: ${error.message}`;
+                createFallbackLogos();
+            }
+        }
+
+        // Fallback logos
+        function createFallbackLogos() {
+            const createLogo = (color) => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 200;
+                canvas.height = 200;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = color;
+                ctx.font = 'bold 24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('WATERMARK', 100, 100);
+                const img = new Image();
+                img.src = canvas.toDataURL();
+                return img;
+            };
+            logoImages = {
+                black: createLogo('black'),
+                gold: createLogo('gold'),
+                white: createLogo('white')
+            };
+            loadingMessage.style.display = 'none';
+        }
+
+        // Initialize
+        async function init() {
+            setupEventListeners();
+            colorDisplay.style.backgroundColor = rgbToHex(shadowColor.r, shadowColor.g, shadowColor.b);
+            await loadLogoImages();
+        }
+
+        // Event listeners
+        function setupEventListeners() {
+            chooseImagesBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            radioOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    radioOptions.forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+                    logoType = option.dataset.value;
+                    updatePreview();
+                });
+            });
+            
+            shadowTopCheckbox.addEventListener('change', () => {
+                shadowTop = shadowTopCheckbox.checked;
+                updatePreview();
+            });
+            
+            shadowBottomCheckbox.addEventListener('change', () => {
+                shadowBottom = shadowBottomCheckbox.checked;
+                updatePreview();
+            });
+            
+            opacitySlider.addEventListener('input', () => {
+                logoOpacity = parseInt(opacitySlider.value);
+                opacityValue.textContent = logoOpacity;
+                updatePreview();
+            });
+            
+            coverageSlider.addEventListener('input', () => {
+                coverage = parseInt(coverageSlider.value);
+                coverageValue.textContent = coverage;
+                updatePreview();
+            });
+            
+            positionSelect.addEventListener('change', (e) => {
+                logoPosition = e.target.value;
+                updatePreview();
+            });
+            
+            shadowOpacitySlider.addEventListener('input', () => {
+                shadowOpacity = parseInt(shadowOpacitySlider.value);
+                shadowOpacityValue.textContent = shadowOpacity;
+                updatePreview();
+            });
+            
+            shadowStrengthSlider.addEventListener('input', () => {
+                shadowStrength = parseInt(shadowStrengthSlider.value);
+                shadowStrengthValue.textContent = shadowStrength;
+                updatePreview();
+            });
+            
+            colorBtn.addEventListener('click', chooseShadowColor);
+            exportBtn.addEventListener('click', exportAll);
+            
+            prevBtn.addEventListener('click', showPreviousImage);
+            nextBtn.addEventListener('click', showNextImage);
+        }
+
+        // File selection
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) {
+                selectedImages = files;
+                currentImageIndex = 0;
+                updateImageCounter();
+                updatePreview();
+                updateNavButtons();
+            }
+        }
+
+        // Navigation
+        function showPreviousImage() {
+            if (selectedImages.length > 0) {
+                currentImageIndex = (currentImageIndex - 1 + selectedImages.length) % selectedImages.length;
+                updateImageCounter();
+                updatePreview();
+            }
+        }
+
+        function showNextImage() {
+            if (selectedImages.length > 0) {
+                currentImageIndex = (currentImageIndex + 1) % selectedImages.length;
+                updateImageCounter();
+                updatePreview();
+            }
+        }
+
+        function updateImageCounter() {
+            imagesInfo.textContent = `${selectedImages.length} image${selectedImages.length !== 1 ? 's' : ''} selected (${currentImageIndex + 1}/${selectedImages.length})`;
+        }
+
+        function updateNavButtons() {
+            if (selectedImages.length > 1) {
+                prevBtn.style.display = 'block';
+                nextBtn.style.display = 'block';
+            } else {
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+            }
+        }
+
+        // Color picker
+        function chooseShadowColor() {
+            const colorPicker = document.createElement('input');
+            colorPicker.type = 'color';
+            colorPicker.value = rgbToHex(shadowColor.r, shadowColor.g, shadowColor.b);
+            colorPicker.addEventListener('input', () => {
+                const hex = colorPicker.value;
+                const rgb = hexToRgb(hex);
+                shadowColor = rgb;
+                colorDisplay.style.backgroundColor = hex;
+                updatePreview();
+            });
+            colorPicker.click();
+        }
+
+        // Preview update
+        async function updatePreview() {
+            if (selectedImages.length === 0) {
+                previewText.style.display = 'block';
+                previewImage.style.display = 'none';
+                loadingMessage.style.display = 'none';
+                previewText.textContent = "Select images to see preview";
+                return;
+            }
+            
+            try {
+                const file = selectedImages[currentImageIndex];
+                previewText.style.display = 'none';
+                previewImage.style.display = 'none';
+                loadingMessage.style.display = 'block';
+                loadingMessage.textContent = "Processing image...";
+                
+                const image = await loadImage(URL.createObjectURL(file));
+                if (!logoImages[logoType]) throw new Error(`Logo type '${logoType}' not available`);
+                
+                loadingMessage.textContent = "Applying watermark...";
+                const watermarked = await applyWatermark(image);
+                
+                loadingMessage.style.display = 'none';
+                previewText.style.display = 'none';
+                previewImage.style.display = 'block';
+                previewImage.src = watermarked.src;
+            } catch (error) {
+                console.error("Preview error:", error);
+                loadingMessage.style.display = 'none';
+                previewText.style.display = 'block';
+                previewImage.style.display = 'none';
+                previewText.textContent = `Error: ${error.message}`;
+            }
+        }
+
+        // Watermark application (with independent opacity)
+        async function applyWatermark(image) {
+            return new Promise((resolve) => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // 1. Draw original image
+                    ctx.drawImage(image, 0, 0);
+                    
+                    // 2. Process shadows separately
+                    if (shadowTop || shadowBottom) {
+                        const shadowCanvas = document.createElement('canvas');
+                        shadowCanvas.width = canvas.width;
+                        shadowCanvas.height = canvas.height;
+                        const shadowCtx = shadowCanvas.getContext('2d');
+                        
+                        if (shadowTop) applyTopShadow(shadowCtx);
+                        if (shadowBottom) applyBottomShadow(shadowCtx);
+                        
+                        // Apply shadows with shadowOpacity only
+                        ctx.globalAlpha = shadowOpacity / 100;
+                        ctx.drawImage(shadowCanvas, 0, 0);
+                        ctx.globalAlpha = 1.0;
+                    }
+                    
+                    // 3. Process logo with its own opacity
+                    addLogo(ctx, image);
+                    
+                    const result = new Image();
+                    result.onload = () => resolve(result);
+                    result.src = canvas.toDataURL('image/jpeg', 0.95);
+                } catch (error) {
+                    console.error("Watermark error:", error);
+                    const result = new Image();
+                    result.onload = () => resolve(result);
+                    result.src = image.src;
+                }
+            });
+        }
+
+        // Shadow effects
+        function applyTopShadow(ctx) {
+            const shadowHeight = Math.floor(ctx.canvas.height * (shadowStrength / 100));
+            for (let i = 0; i < shadowHeight; i++) {
+                const alpha = Math.floor(shadowOpacity * (1 - i / shadowHeight));
+                ctx.fillStyle = `rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.b}, ${alpha/255})`;
+                ctx.fillRect(0, i, ctx.canvas.width, 1);
+            }
+        }
+
+        function applyBottomShadow(ctx) {
+            const shadowHeight = Math.floor(ctx.canvas.height * (shadowStrength / 100));
+            const startY = ctx.canvas.height - shadowHeight;
+            for (let i = 0; i < shadowHeight; i++) {
+                const alpha = Math.floor(shadowOpacity * (i / shadowHeight));
+                ctx.fillStyle = `rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.b}, ${alpha/255})`;
+                ctx.fillRect(0, startY + i, ctx.canvas.width, 1);
+            }
+        }
+
+        // Add logo (with independent opacity)
+        function addLogo(ctx, image) {
+            const logo = logoImages[logoType];
+            if (!logo) return;
+            
+            const minDimension = Math.min(image.width, image.height);
+            const logoSize = Math.floor(minDimension * (coverage / 100) * 0.5);
+            const ratio = Math.min(logoSize / logo.width, logoSize / logo.height);
+            const width = logo.width * ratio;
+            const height = logo.height * ratio;
+            
+            let logoX, logoY;
+            logoY = image.height - height - 20;
+            
+            switch(logoPosition) {
+                case "left": logoX = 20; break;
+                case "center": logoX = (image.width - width) / 2; break;
+                case "right": default: logoX = image.width - width - 20;
+            }
+            
+            // Apply logo opacity independently
+            ctx.globalAlpha = logoOpacity / 100;
+            ctx.drawImage(logo, logoX, logoY, width, height);
+            ctx.globalAlpha = 1.0;
+        }
+
+        // Export
+        async function exportAll() {
+            if (selectedImages.length === 0) {
+                alert("Please select images first.");
+                return;
+            }
+            
+            try {
+                exportBtn.disabled = true;
+                exportBtn.textContent = "Processing...";
+                
+                for (let i = 0; i < selectedImages.length; i++) {
+                    const file = selectedImages[i];
+                    exportBtn.textContent = `Processing ${i+1}/${selectedImages.length}...`;
+                    
+                    try {
+                        const image = await loadImage(URL.createObjectURL(file));
+                        const watermarked = await applyWatermark(image);
+                        
+                        const link = document.createElement('a');
+                        const filename = file.name.replace(/(\.[\w\d_-]+)$/i, '_watermarked$1');
+                        link.download = filename;
+                        link.href = watermarked.src;
+                        link.click();
+                        
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    } catch (error) {
+                        console.error(`Error processing ${file.name}:`, error);
+                    }
+                }
+                
+                alert(`Successfully processed ${selectedImages.length} images!`);
+            } catch (error) {
+                console.error("Export error:", error);
+                alert("Export failed: " + error.message);
+            } finally {
+                exportBtn.disabled = false;
+                exportBtn.textContent = "Export All";
+            }
+        }
+
+        // Helpers
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : { r: 0, g: 0, b: 0 };
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        // Start the app
+        init();
+    </script>
+</body>
+</html>
