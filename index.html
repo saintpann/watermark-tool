@@ -2,238 +2,189 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Watermark Tool</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>iOS Watermark Tool</title>
     <style>
+        /* iOS-optimized styles */
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: #f0f0f0;
             margin: 0;
-            padding: 20px;
-            max-width: 800px;
-            margin: 0 auto;
+            padding: 10px;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
         }
         .container {
             background-color: white;
             border-radius: 10px;
-            padding: 20px;
+            padding: 15px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 100%;
+            box-sizing: border-box;
         }
-        h1 {
-            color: #333;
-            text-align: center;
+        
+        /* iOS-friendly touch targets */
+        button, .radio-option, input[type="range"] {
+            min-height: 44px; /* Apple's recommended minimum */
         }
-        button {
-            background-color: #007AFF;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            margin-bottom: 10px;
+        #colorBtn {
+            min-width: 44px;
+            padding: 0 15px;
         }
-        button:hover {
-            opacity: 0.9;
+        
+        /* Enhanced color display */
+        .color-display {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            border: 2px solid #ddd;
         }
-        #exportBtn {
-            background-color: #34C759;
+        
+        /* Improved slider appearance */
+        input[type="range"] {
+            -webkit-appearance: none;
+            height: 8px;
+            background: #ddd;
+            border-radius: 4px;
+            margin: 15px 0;
         }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #007AFF;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        /* Preview area */
         #previewContainer {
             border: 2px solid #ddd;
-            min-height: 300px;
+            min-height: 200px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: 20px 0;
+            margin: 15px 0;
             background-color: white;
             position: relative;
+            border-radius: 10px;
+            aspect-ratio: 4/3;
         }
-        #previewImage {
-            max-width: 100%;
-            max-height: 300px;
-        }
-        .nav-arrow {
+        
+        /* Loading indicator */
+        #loadingOverlay {
             position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(0,0,0,0.5);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
             display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            border-radius: 8px;
         }
-        #prevBtn {
-            left: 10px;
-        }
-        #nextBtn {
-            right: 10px;
-        }
-        .option-group {
-            display: flex;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-        .option {
-            flex: 1;
-            min-width: 150px;
-            margin: 5px;
-        }
-        .radio-group {
-            display: flex;
-            margin-bottom: 15px;
-        }
-        .radio-option {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            background-color: #007AFF;
-            color: white;
-            margin: 0 5px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .radio-option.selected {
-            background-color: white;
-            color: #007AFF;
-            border: 1px solid #007AFF;
-        }
-        .color-display {
-            display: inline-block;
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007AFF;
+            border-radius: 50%;
             width: 30px;
             height: 30px;
-            background-color: black;
-            vertical-align: middle;
-            margin: 0 10px;
-            border: 1px solid #999;
+            animation: spin 1s linear infinite;
+            margin-top: 10px;
         }
-        input[type="range"] {
-            width: 100%;
-        }
-        .slider-container {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .slider-container label {
-            min-width: 80px;
-        }
-        .slider-value {
-            min-width: 30px;
-            text-align: right;
-            margin-left: 10px;
-        }
-        .shadow-controls {
-            background-color: #f8f8f8;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-        }
-        .logo-opacity-strong {
-            background-color: #f0f8ff;
-            padding: 10px;
-            border-radius: 5px;
-        }
-        #loadingMessage {
-            color: #666;
-            font-style: italic;
-        }
-        select {
-            padding: 5px;
-            border-radius: 5px;
-            border: 1px solid #ddd;
-            background-color: white;
-            margin-left: 10px;
-        }
-        .option-group select {
-            margin-left: 0;
-            width: 100%;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Image Watermark Tool</h1>
-        
-        <button id="chooseImagesBtn">Choose Images</button>
-        <div id="imagesInfo">No images selected</div>
+        <h1>Watermark Tool</h1>
         
         <div id="previewContainer">
+            <div id="loadingOverlay">
+                <div id="loadingMessage">Processing...</div>
+                <div class="loader"></div>
+            </div>
             <button id="prevBtn" class="nav-arrow">←</button>
-            <div id="previewText">Select images to see preview</div>
-            <div id="loadingMessage" style="display: none;"></div>
+            <div id="previewText">Select images to begin</div>
             <img id="previewImage" style="display: none;">
             <button id="nextBtn" class="nav-arrow">→</button>
         </div>
         
-        <div class="radio-group">
-            <div class="radio-option selected" data-value="black">Black Logo</div>
-            <div class="radio-option" data-value="gold">Gold Logo</div>
-            <div class="radio-option" data-value="white">White Logo</div>
-        </div>
-        
-        <div class="logo-opacity-strong">
-            <div class="slider-container">
-                <label for="opacitySlider"><strong>Logo Opacity:</strong></label>
-                <input type="range" id="opacitySlider" min="0" max="100" value="80">
-                <span id="opacityValue" class="slider-value">80</span><span>%</span>
+        <div id="controls-section">
+            <button id="chooseImagesBtn">Choose Images</button>
+            <div id="imagesInfo">No images selected</div>
+            
+            <div class="radio-group">
+                <div class="radio-option selected" data-value="black">Black</div>
+                <div class="radio-option" data-value="gold">Gold</div>
+                <div class="radio-option" data-value="white">White</div>
             </div>
             
-            <div class="slider-container">
-                <label for="coverageSlider"><strong>Logo Size:</strong></label>
-                <input type="range" id="coverageSlider" min="5" max="100" value="25">
-                <span id="coverageValue" class="slider-value">25</span><span>%</span>
-            </div>
-            
-            <div class="option-group">
-                <div class="option">
-                    <label>Position:</label>
-                    <select id="positionSelect">
-                        <option value="right">Right</option>
-                        <option value="left">Left</option>
-                        <option value="center">Center</option>
-                    </select>
+            <div class="logo-opacity-strong">
+                <div class="slider-container">
+                    <label for="opacitySlider">Logo Opacity:</label>
+                    <input type="range" id="opacitySlider" min="0" max="100" value="80">
+                    <span id="opacityValue" class="slider-value">80</span><span>%</span>
                 </div>
-            </div>
-        </div>
-        
-        <div class="shadow-controls">
-            <div class="option-group">
-                <div class="option">
-                    <label>Top Shadow</label>
-                    <input type="checkbox" id="shadowTop">
+                
+                <div class="slider-container">
+                    <label for="coverageSlider">Logo Size:</label>
+                    <input type="range" id="coverageSlider" min="5" max="100" value="25">
+                    <span id="coverageValue" class="slider-value">25</span><span>%</span>
                 </div>
-                <div class="option">
-                    <label>Bottom Shadow</label>
-                    <input type="checkbox" id="shadowBottom" checked>
+                
+                <div class="option-group">
+                    <div class="option">
+                        <label>Position:</label>
+                        <select id="positionSelect">
+                            <option value="right">Right</option>
+                            <option value="left">Left</option>
+                            <option value="center">Center</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             
-            <div class="slider-container">
-                <label for="shadowOpacitySlider">Shadow Opacity:</label>
-                <input type="range" id="shadowOpacitySlider" min="0" max="100" value="50">
-                <span id="shadowOpacityValue" class="slider-value">50</span><span>%</span>
+            <div class="shadow-controls">
+                <div class="option-group">
+                    <div class="option">
+                        <label>Top Shadow</label>
+                        <input type="checkbox" id="shadowTop">
+                    </div>
+                    <div class="option">
+                        <label>Bottom Shadow</label>
+                        <input type="checkbox" id="shadowBottom" checked>
+                    </div>
+                </div>
+                
+                <div class="slider-container">
+                    <label for="shadowOpacitySlider">Shadow Opacity:</label>
+                    <input type="range" id="shadowOpacitySlider" min="0" max="100" value="50">
+                    <span id="shadowOpacityValue" class="slider-value">50</span><span>%</span>
+                </div>
+                
+                <div class="slider-container">
+                    <label for="shadowStrengthSlider">Shadow Strength:</label>
+                    <input type="range" id="shadowStrengthSlider" min="1" max="100" value="25">
+                    <span id="shadowStrengthValue" class="slider-value">25</span><span>%</span>
+                </div>
+                
+                <div class="option-group">
+                    <label>Shadow Color:</label>
+                    <div id="colorDisplay" class="color-display"></div>
+                    <button id="colorBtn">Choose</button>
+                </div>
             </div>
             
-            <div class="slider-container">
-                <label for="shadowStrengthSlider">Shadow Strength:</label>
-                <input type="range" id="shadowStrengthSlider" min="1" max="100" value="25">
-                <span id="shadowStrengthValue" class="slider-value">25</span><span>%</span>
-            </div>
-            
-            <div class="option-group">
-                <label>Shadow Color:</label>
-                <div id="colorDisplay" class="color-display"></div>
-                <button id="colorBtn">Choose Color</button>
-            </div>
+            <button id="exportBtn">Export All</button>
         </div>
-        
-        <button id="exportBtn">Export All</button>
         
         <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
     </div>
@@ -265,6 +216,7 @@
         const imagesInfo = document.getElementById('imagesInfo');
         const previewContainer = document.getElementById('previewContainer');
         const previewText = document.getElementById('previewText');
+        const loadingOverlay = document.getElementById('loadingOverlay');
         const loadingMessage = document.getElementById('loadingMessage');
         const previewImage = document.getElementById('previewImage');
         const prevBtn = document.getElementById('prevBtn');
@@ -286,42 +238,107 @@
         const colorBtn = document.getElementById('colorBtn');
         const exportBtn = document.getElementById('exportBtn');
 
-        // Image loading
+        // Image loading with iOS error handling
         function loadImage(url) {
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 img.crossOrigin = "Anonymous";
+                
                 const timeout = setTimeout(() => {
-                    img.onload = img.onerror = null;
-                    reject(new Error(`Image load timed out: ${url.split('?')[0]}`));
-                }, 10000);
+                    reject(new Error('Image load timed out'));
+                }, 15000); // Longer timeout for mobile
+                
                 img.onload = () => {
                     clearTimeout(timeout);
-                    resolve(img);
+                    // Fix iOS image orientation
+                    if (typeof EXIF !== 'undefined' && url instanceof File) {
+                        EXIF.getData(img, function() {
+                            const orientation = EXIF.getTag(this, 'Orientation');
+                            if (orientation && orientation !== 1) {
+                                const canvas = document.createElement('canvas');
+                                const ctx = canvas.getContext('2d');
+                                canvas.width = img.width;
+                                canvas.height = img.height;
+                                
+                                // Apply orientation correction
+                                switch(orientation) {
+                                    case 3:
+                                        ctx.rotate(Math.PI);
+                                        ctx.drawImage(img, -img.width, -img.height);
+                                        break;
+                                    case 6:
+                                        canvas.width = img.height;
+                                        canvas.height = img.width;
+                                        ctx.rotate(Math.PI/2);
+                                        ctx.drawImage(img, 0, -img.height);
+                                        break;
+                                    case 8:
+                                        canvas.width = img.height;
+                                        canvas.height = img.width;
+                                        ctx.rotate(3*Math.PI/2);
+                                        ctx.drawImage(img, -img.width, 0);
+                                        break;
+                                    default:
+                                        ctx.drawImage(img, 0, 0);
+                                }
+                                
+                                const correctedImg = new Image();
+                                correctedImg.src = canvas.toDataURL('image/jpeg');
+                                correctedImg.onload = () => resolve(correctedImg);
+                                return;
+                            }
+                            resolve(img);
+                        });
+                    } else {
+                        resolve(img);
+                    }
                 };
-                img.onerror = (err) => {
+                
+                img.onerror = () => {
                     clearTimeout(timeout);
-                    reject(new Error(`Failed to load image: ${url.split('?')[0]}`));
+                    reject(new Error('Failed to load image'));
                 };
-                img.src = url;
+                
+                if (url instanceof File) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => img.src = e.target.result;
+                    reader.readAsDataURL(url);
+                } else {
+                    img.src = url;
+                }
             });
         }
 
-        // Load logos
+        // Load logos with retry logic
         async function loadLogoImages() {
-            loadingMessage.style.display = 'block';
-            loadingMessage.textContent = "Loading logos...";
+            showLoading("Loading logos...");
             try {
+                const loadWithRetry = async (url, retries = 3) => {
+                    for (let i = 0; i < retries; i++) {
+                        try {
+                            return await loadImage(url);
+                        } catch (err) {
+                            if (i === retries - 1) throw err;
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                        }
+                    }
+                };
+                
                 const [blackLogo, goldLogo, whiteLogo] = await Promise.all([
-                    loadImage(logoUrls.black),
-                    loadImage(logoUrls.gold),
-                    loadImage(logoUrls.white)
+                    loadWithRetry(logoUrls.black),
+                    loadWithRetry(logoUrls.gold),
+                    loadWithRetry(logoUrls.white)
                 ]);
-                logoImages = { black: blackLogo, gold: goldLogo, white: whiteLogo };
-                loadingMessage.style.display = 'none';
+                
+                logoImages = {
+                    black: blackLogo,
+                    gold: goldLogo,
+                    white: whiteLogo
+                };
+                hideLoading();
             } catch (error) {
                 console.error("Error loading logos:", error);
-                loadingMessage.textContent = `Error loading logos: ${error.message}`;
+                showLoading(`Error: ${error.message}`);
                 createFallbackLogos();
             }
         }
@@ -341,12 +358,170 @@
                 img.src = canvas.toDataURL();
                 return img;
             };
+            
             logoImages = {
                 black: createLogo('black'),
                 gold: createLogo('gold'),
                 white: createLogo('white')
             };
-            loadingMessage.style.display = 'none';
+            hideLoading();
+        }
+
+        // iOS-optimized color picker
+        function chooseShadowColor() {
+            const colorPicker = document.createElement('input');
+            colorPicker.type = 'color';
+            colorPicker.value = rgbToHex(shadowColor.r, shadowColor.g, shadowColor.b);
+            
+            // iOS-friendly events
+            colorPicker.addEventListener('change', () => {
+                const hex = colorPicker.value;
+                const rgb = hexToRgb(hex);
+                shadowColor = rgb;
+                colorDisplay.style.backgroundColor = hex;
+                updatePreview();
+            });
+            
+            // Required for iOS to show picker
+            colorPicker.click();
+        }
+
+        // iOS download helper
+        function downloadImageIOS(src, filename) {
+            // Create temporary link
+            const link = document.createElement('a');
+            link.href = src;
+            link.download = filename;
+            
+            // iOS workaround
+            if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+                const reader = new FileReader();
+                fetch(src)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        reader.onload = () => {
+                            const newTab = window.open();
+                            newTab.document.write(
+                                `<img src="${reader.result}" style="max-width: 100%;"/>`
+                            );
+                        };
+                        reader.readAsDataURL(blob);
+                    });
+            } else {
+                // Standard download for other devices
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        // Watermark application with independent opacity
+        async function applyWatermark(image) {
+            return new Promise((resolve) => {
+                try {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+                    const ctx = canvas.getContext('2d');
+                    
+                    // 1. Draw original image
+                    ctx.drawImage(image, 0, 0);
+                    
+                    // 2. Process shadows separately
+                    if (shadowTop || shadowBottom) {
+                        const shadowCanvas = document.createElement('canvas');
+                        shadowCanvas.width = canvas.width;
+                        shadowCanvas.height = canvas.height;
+                        const shadowCtx = shadowCanvas.getContext('2d');
+                        
+                        if (shadowTop) applyTopShadow(shadowCtx);
+                        if (shadowBottom) applyBottomShadow(shadowCtx);
+                        
+                        // Apply shadows with shadowOpacity only
+                        ctx.globalAlpha = shadowOpacity / 100;
+                        ctx.drawImage(shadowCanvas, 0, 0);
+                        ctx.globalAlpha = 1.0;
+                    }
+                    
+                    // 3. Process logo with its own opacity
+                    addLogo(ctx, image);
+                    
+                    const result = new Image();
+                    result.onload = () => resolve(result);
+                    result.src = canvas.toDataURL('image/jpeg', 0.9);
+                } catch (error) {
+                    console.error("Watermark error:", error);
+                    const result = new Image();
+                    result.onload = () => resolve(result);
+                    result.src = image.src;
+                }
+            });
+        }
+
+        // Shadow effects
+        function applyTopShadow(ctx) {
+            const shadowHeight = Math.floor(ctx.canvas.height * (shadowStrength / 100));
+            for (let i = 0; i < shadowHeight; i++) {
+                const alpha = Math.floor(shadowOpacity * (1 - i / shadowHeight));
+                ctx.fillStyle = `rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.b}, ${alpha/255})`;
+                ctx.fillRect(0, i, ctx.canvas.width, 1);
+            }
+        }
+
+        function applyBottomShadow(ctx) {
+            const shadowHeight = Math.floor(ctx.canvas.height * (shadowStrength / 100));
+            const startY = ctx.canvas.height - shadowHeight;
+            for (let i = 0; i < shadowHeight; i++) {
+                const alpha = Math.floor(shadowOpacity * (i / shadowHeight));
+                ctx.fillStyle = `rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.b}, ${alpha/255})`;
+                ctx.fillRect(0, startY + i, ctx.canvas.width, 1);
+            }
+        }
+
+        // Add logo with mobile sizing
+        function addLogo(ctx, image) {
+            const logo = logoImages[logoType];
+            if (!logo) return;
+            
+            // Mobile-optimized sizing
+            const isMobile = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            const sizeMultiplier = isMobile ? 0.7 : 0.5;
+            const minDimension = Math.min(image.width, image.height);
+            const logoSize = Math.floor(minDimension * (coverage / 100) * sizeMultiplier);
+            
+            const ratio = Math.min(logoSize / logo.width, logoSize / logo.height);
+            const width = logo.width * ratio;
+            const height = logo.height * ratio;
+            
+            let logoX, logoY;
+            logoY = image.height - height - (isMobile ? 15 : 20);
+            
+            switch(logoPosition) {
+                case "left": 
+                    logoX = isMobile ? 10 : 20;
+                    break;
+                case "center": 
+                    logoX = (image.width - width) / 2;
+                    break;
+                case "right": 
+                default:
+                    logoX = image.width - width - (isMobile ? 10 : 20);
+            }
+            
+            // Apply logo opacity independently
+            ctx.globalAlpha = logoOpacity / 100;
+            ctx.drawImage(logo, logoX, logoY, width, height);
+            ctx.globalAlpha = 1.0;
+        }
+
+        // Loading states
+        function showLoading(message) {
+            loadingMessage.textContent = message;
+            loadingOverlay.style.display = 'flex';
+        }
+
+        function hideLoading() {
+            loadingOverlay.style.display = 'none';
         }
 
         // Initialize
@@ -416,7 +591,7 @@
             nextBtn.addEventListener('click', showNextImage);
         }
 
-        // File selection
+        // File handling
         function handleFileSelect(e) {
             const files = Array.from(e.target.files);
             if (files.length > 0) {
@@ -459,147 +634,39 @@
             }
         }
 
-        // Color picker
-        function chooseShadowColor() {
-            const colorPicker = document.createElement('input');
-            colorPicker.type = 'color';
-            colorPicker.value = rgbToHex(shadowColor.r, shadowColor.g, shadowColor.b);
-            colorPicker.addEventListener('input', () => {
-                const hex = colorPicker.value;
-                const rgb = hexToRgb(hex);
-                shadowColor = rgb;
-                colorDisplay.style.backgroundColor = hex;
-                updatePreview();
-            });
-            colorPicker.click();
-        }
-
         // Preview update
         async function updatePreview() {
             if (selectedImages.length === 0) {
                 previewText.style.display = 'block';
                 previewImage.style.display = 'none';
-                loadingMessage.style.display = 'none';
+                hideLoading();
                 previewText.textContent = "Select images to see preview";
                 return;
             }
             
             try {
+                showLoading("Processing image...");
                 const file = selectedImages[currentImageIndex];
-                previewText.style.display = 'none';
-                previewImage.style.display = 'none';
-                loadingMessage.style.display = 'block';
-                loadingMessage.textContent = "Processing image...";
                 
-                const image = await loadImage(URL.createObjectURL(file));
+                const image = await loadImage(file);
                 if (!logoImages[logoType]) throw new Error(`Logo type '${logoType}' not available`);
                 
-                loadingMessage.textContent = "Applying watermark...";
                 const watermarked = await applyWatermark(image);
                 
-                loadingMessage.style.display = 'none';
                 previewText.style.display = 'none';
                 previewImage.style.display = 'block';
                 previewImage.src = watermarked.src;
+                hideLoading();
             } catch (error) {
                 console.error("Preview error:", error);
-                loadingMessage.style.display = 'none';
+                hideLoading();
                 previewText.style.display = 'block';
                 previewImage.style.display = 'none';
                 previewText.textContent = `Error: ${error.message}`;
             }
         }
 
-        // Watermark application (with independent opacity)
-        async function applyWatermark(image) {
-            return new Promise((resolve) => {
-                try {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = image.width;
-                    canvas.height = image.height;
-                    const ctx = canvas.getContext('2d');
-                    
-                    // 1. Draw original image
-                    ctx.drawImage(image, 0, 0);
-                    
-                    // 2. Process shadows separately
-                    if (shadowTop || shadowBottom) {
-                        const shadowCanvas = document.createElement('canvas');
-                        shadowCanvas.width = canvas.width;
-                        shadowCanvas.height = canvas.height;
-                        const shadowCtx = shadowCanvas.getContext('2d');
-                        
-                        if (shadowTop) applyTopShadow(shadowCtx);
-                        if (shadowBottom) applyBottomShadow(shadowCtx);
-                        
-                        // Apply shadows with shadowOpacity only
-                        ctx.globalAlpha = shadowOpacity / 100;
-                        ctx.drawImage(shadowCanvas, 0, 0);
-                        ctx.globalAlpha = 1.0;
-                    }
-                    
-                    // 3. Process logo with its own opacity
-                    addLogo(ctx, image);
-                    
-                    const result = new Image();
-                    result.onload = () => resolve(result);
-                    result.src = canvas.toDataURL('image/jpeg', 0.95);
-                } catch (error) {
-                    console.error("Watermark error:", error);
-                    const result = new Image();
-                    result.onload = () => resolve(result);
-                    result.src = image.src;
-                }
-            });
-        }
-
-        // Shadow effects
-        function applyTopShadow(ctx) {
-            const shadowHeight = Math.floor(ctx.canvas.height * (shadowStrength / 100));
-            for (let i = 0; i < shadowHeight; i++) {
-                const alpha = Math.floor(shadowOpacity * (1 - i / shadowHeight));
-                ctx.fillStyle = `rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.b}, ${alpha/255})`;
-                ctx.fillRect(0, i, ctx.canvas.width, 1);
-            }
-        }
-
-        function applyBottomShadow(ctx) {
-            const shadowHeight = Math.floor(ctx.canvas.height * (shadowStrength / 100));
-            const startY = ctx.canvas.height - shadowHeight;
-            for (let i = 0; i < shadowHeight; i++) {
-                const alpha = Math.floor(shadowOpacity * (i / shadowHeight));
-                ctx.fillStyle = `rgba(${shadowColor.r}, ${shadowColor.g}, ${shadowColor.b}, ${alpha/255})`;
-                ctx.fillRect(0, startY + i, ctx.canvas.width, 1);
-            }
-        }
-
-        // Add logo (with independent opacity)
-        function addLogo(ctx, image) {
-            const logo = logoImages[logoType];
-            if (!logo) return;
-            
-            const minDimension = Math.min(image.width, image.height);
-            const logoSize = Math.floor(minDimension * (coverage / 100) * 0.5);
-            const ratio = Math.min(logoSize / logo.width, logoSize / logo.height);
-            const width = logo.width * ratio;
-            const height = logo.height * ratio;
-            
-            let logoX, logoY;
-            logoY = image.height - height - 20;
-            
-            switch(logoPosition) {
-                case "left": logoX = 20; break;
-                case "center": logoX = (image.width - width) / 2; break;
-                case "right": default: logoX = image.width - width - 20;
-            }
-            
-            // Apply logo opacity independently
-            ctx.globalAlpha = logoOpacity / 100;
-            ctx.drawImage(logo, logoX, logoY, width, height);
-            ctx.globalAlpha = 1.0;
-        }
-
-        // Export
+        // Export with iOS handling
         async function exportAll() {
             if (selectedImages.length === 0) {
                 alert("Please select images first.");
@@ -615,22 +682,35 @@
                     exportBtn.textContent = `Processing ${i+1}/${selectedImages.length}...`;
                     
                     try {
-                        const image = await loadImage(URL.createObjectURL(file));
+                        const image = await loadImage(file);
                         const watermarked = await applyWatermark(image);
                         
-                        const link = document.createElement('a');
                         const filename = file.name.replace(/(\.[\w\d_-]+)$/i, '_watermarked$1');
-                        link.download = filename;
-                        link.href = watermarked.src;
-                        link.click();
                         
-                        await new Promise(resolve => setTimeout(resolve, 100));
+                        // iOS-specific handling
+                        if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+                            const link = document.createElement('a');
+                            link.href = watermarked.src;
+                            link.download = filename;
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            
+                            // Additional iOS save prompt
+                            if (window.webkit && window.webkit.messageHandlers) {
+                                alert("Tap and hold the image, then select 'Save Image'");
+                            }
+                        } else {
+                            downloadImageIOS(watermarked.src, filename);
+                        }
+                        
+                        await new Promise(resolve => setTimeout(resolve, 300));
                     } catch (error) {
                         console.error(`Error processing ${file.name}:`, error);
                     }
                 }
                 
-                alert(`Successfully processed ${selectedImages.length} images!`);
+                alert(`Processed ${selectedImages.length} images!`);
             } catch (error) {
                 console.error("Export error:", error);
                 alert("Export failed: " + error.message);
@@ -640,7 +720,7 @@
             }
         }
 
-        // Helpers
+        // Color helpers
         function hexToRgb(hex) {
             const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? {
