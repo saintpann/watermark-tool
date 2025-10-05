@@ -224,9 +224,13 @@
                 <div class="option">
                     <label>Position:</label>
                     <select id="positionSelect">
-                        <option value="right">Right</option>
-                        <option value="left">Left</option>
+                        <option value="top-left">Top Left</option>
+                        <option value="top-center">Top Center</option>
+                        <option value="top-right">Top Right</option>
                         <option value="center">Center</option>
+                        <option value="bottom-left">Bottom Left</option>
+                        <option value="bottom-center">Bottom Center</option>
+                        <option value="bottom-right">Bottom Right</option>
                     </select>
                 </div>
             </div>
@@ -291,7 +295,7 @@
         let shadowStrength = 25;
         let shadowColor = { r: 0, g: 0, b: 0 };
         let logoImages = {};
-        let logoPosition = "right";
+        let logoPosition = "top-left";
 
         // DOM Elements
         const chooseImagesBtn = document.getElementById('chooseImagesBtn');
@@ -498,12 +502,37 @@
             const height = logo.height * ratio;
             
             let logoX, logoY;
-            logoY = image.height - height - (isMobile ? 15 : 20);
             
+            // Handle all position options
             switch(logoPosition) {
-                case "left": logoX = isMobile ? 10 : 20; break;
-                case "center": logoX = (image.width - width) / 2; break;
-                case "right": default: logoX = image.width - width - (isMobile ? 10 : 20);
+                case "top-left":
+                    logoY = isMobile ? 10 : 20;
+                    logoX = isMobile ? 10 : 20;
+                    break;
+                case "top-center":
+                    logoY = isMobile ? 10 : 20;
+                    logoX = (image.width - width) / 2;
+                    break;
+                case "top-right":
+                    logoY = isMobile ? 10 : 20;
+                    logoX = image.width - width - (isMobile ? 10 : 20);
+                    break;
+                case "center":
+                    logoY = (image.height - height) / 2;
+                    logoX = (image.width - width) / 2;
+                    break;
+                case "bottom-left":
+                    logoY = image.height - height - (isMobile ? 15 : 20);
+                    logoX = isMobile ? 10 : 20;
+                    break;
+                case "bottom-center":
+                    logoY = image.height - height - (isMobile ? 15 : 20);
+                    logoX = (image.width - width) / 2;
+                    break;
+                case "bottom-right":
+                default:
+                    logoY = image.height - height - (isMobile ? 15 : 20);
+                    logoX = image.width - width - (isMobile ? 10 : 20);
             }
             
             ctx.globalAlpha = logoOpacity / 100;
